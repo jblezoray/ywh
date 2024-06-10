@@ -1,0 +1,4 @@
+requests == 2.32.3
+kafka-python == 2.0.1  # TODO migrate.  See https://github.com/dpkp/kafka-python/issues/2431
+SQLAlchemy == 2.0.30
+psycopg2-binary == 2.9.9
