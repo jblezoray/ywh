@@ -29,3 +29,9 @@ Ce projet est conçu pour surveiller le nombre de rapports hunter soumis sur les
    ```bash
    docker compose up --build
    ```
+
+## Tâches à faire
+
+- [ ] utiliser prom pour stocker les données, éventuellement en // de postgresql.  Ca serait plus adapté pour une timeseries. 
+- [ ] front end avec grafana pour parcourir les données.
+- [ ] Tests unitaires /  tests d'intégration
