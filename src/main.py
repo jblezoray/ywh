@@ -6,9 +6,11 @@ import logging
 from adapters.paginated_programs_api_iterator import ProgramsPaginatedAPIIteratorBuilder
 from adapters.kafka_message_broker import KafkaMessageBrokerConsumer, KafkaMessageBrokerProducer, create_kafka_topic
 from adapters.postgres_program_reports_count_persist import PostgresProgramReportsCountPersist
+from adapters.and_program_reports_count_persist import AndProgramReportsCountPersist
+from adapters.influxdb_program_reports_count_persist import InfluxDbProgramReportsCountPersist
 from core.start_points import start_consumer, start_crawler
 from core.data.programs_report_count import serializer_program_reports_count
-from config.config import CRAWL_INTERVAL_SECONDS, DATABASE_URI, KAFKA_BOOTSTRAP_SERVERS, KAFKA_NB_PARTITIONS, KAFKA_TOPIC, YWH_API_URL
+from config.config import CRAWL_INTERVAL_SECONDS, INFLUXDB_BUCKET, INFLUXDB_ORG, INFLUXDB_PASSWORD, INFLUXDB_USERNAME, POSTGRESQL_URL, KAFKA_BOOTSTRAP_SERVERS, KAFKA_NB_PARTITIONS, KAFKA_TOPIC, YWH_API_URL, INFLUXDB_URL
 
 CRAWLER_ARG="-crawler"
 CONSUMER_ARG="-consumer"
@@ -46,8 +48,17 @@ def main():
         message_broker_consumer = KafkaMessageBrokerConsumer(
             KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC
         )
-        program_reports_count_persist = PostgresProgramReportsCountPersist(
-            DATABASE_URI
+        program_reports_count_persist = AndProgramReportsCountPersist(
+            PostgresProgramReportsCountPersist(
+                POSTGRESQL_URL
+            ),
+            InfluxDbProgramReportsCountPersist(
+                INFLUXDB_URL,
+                INFLUXDB_USERNAME,
+                INFLUXDB_PASSWORD,
+                INFLUXDB_ORG,
+                INFLUXDB_BUCKET,
+            )
         )
         start_consumer(message_broker_consumer, program_reports_count_persist)
 

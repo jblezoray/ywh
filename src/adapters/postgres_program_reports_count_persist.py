@@ -9,8 +9,8 @@ from sqlalchemy.sql import func
 
 class PostgresProgramReportsCountPersist(ProgramReportsCountPersist):
     
-    def __init__(self, database_uri: str):
-        engine = create_engine(database_uri)
+    def __init__(self, database_url: str):
+        engine = create_engine(database_url)
         Session = sessionmaker(bind=engine)
         self._session = Session()
 

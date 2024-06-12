@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    uid: edolgb0e9fvuoc
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      dbName: program_reports_count
+      defaultBucket: program_reports_count
+      httpMode: POST
+      organization: program_reports_count
+      version: Flux
+    secureJsonData:
+      token: influxdb-token

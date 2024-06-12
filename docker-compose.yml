@@ -21,6 +21,20 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ywh_scraped_data
 
+  influxdb:
+    image: influxdb:2.7.6
+    # TODO we should probably set a volume here :-)
+    ports:
+      - 8086:8086
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: influxdb
+      DOCKER_INFLUXDB_INIT_PASSWORD: influxdb
+      DOCKER_INFLUXDB_INIT_ORG: program_reports_count
+      DOCKER_INFLUXDB_INIT_BUCKET: program_reports_count
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: influxdb-token
+
   crawler:
     build: src/
     entrypoint: "python -u main.py -crawler"
@@ -39,6 +53,22 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC: program_reports_count
-      DATABASE_URI: postgresql+psycopg2://postgres:postgres@postgres:5432/ywh_scraped_data
+      POSTGRESQL_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/ywh_scraped_data
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_USERNAME: influxdb
+      INFLUXDB_PASSWORD: influxdb
+      INFLUXDB_ORG: program_reports_count
+      INFLUXDB_BUCKET: program_reports_count
     deploy:
       replicas: 3
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    restart: unless-stopped
+    volumes:
+      # - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      # - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards/
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources/
+    ports:
+      - 3000:3000
