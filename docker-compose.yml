@@ -40,7 +40,7 @@ services:
     entrypoint: "python -u main.py -crawler"
     restart: unless-stopped
     environment:
-      CRAWL_INTERVAL_SECONDS: 60
+      CRAWL_INTERVAL_SECONDS: 120
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_TOPIC: program_reports_count
       KAFKA_NB_PARTITIONS: 3 # adjust to at least the number of consumer replicas.

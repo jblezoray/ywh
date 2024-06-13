@@ -30,7 +30,7 @@ class ProgramsPaginatedAPIIterator(ProgramsIterator):
                 "page": self.current_page_index, 
                 "resultsPerPage": 10
             },
-            timeout=2
+            timeout=5
         )
         response.raise_for_status()
         data = response.json()

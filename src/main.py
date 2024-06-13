@@ -3,14 +3,10 @@
 import sys
 import logging
 
-from adapters.paginated_programs_api_iterator import ProgramsPaginatedAPIIteratorBuilder
-from adapters.kafka_message_broker import KafkaMessageBrokerConsumer, KafkaMessageBrokerProducer, create_kafka_topic
-from adapters.postgres_program_reports_count_persist import PostgresProgramReportsCountPersist
-from adapters.and_program_reports_count_persist import AndProgramReportsCountPersist
-from adapters.influxdb_program_reports_count_persist import InfluxDbProgramReportsCountPersist
-from core.start_points import start_consumer, start_crawler
-from core.data.programs_report_count import serializer_program_reports_count
-from config.config import CRAWL_INTERVAL_SECONDS, INFLUXDB_BUCKET, INFLUXDB_ORG, INFLUXDB_PASSWORD, INFLUXDB_USERNAME, POSTGRESQL_URL, KAFKA_BOOTSTRAP_SERVERS, KAFKA_NB_PARTITIONS, KAFKA_TOPIC, YWH_API_URL, INFLUXDB_URL
+from core import consumer
+from core import crawler
+from config.config import CRAWL_INTERVAL_SECONDS
+from config.containers import Container
 
 CRAWLER_ARG="-crawler"
 CONSUMER_ARG="-consumer"
@@ -26,41 +22,18 @@ def main():
         print(f"This program requires an argument in {args_list}.") 
         exit(1)
 
-    elif run_type == CRAWLER_ARG:
+    container = Container()
+    container.init_resources()
+
+    if run_type == CRAWLER_ARG:
         logging.info("Crawler started.")
-        programs_iterator_builder = ProgramsPaginatedAPIIteratorBuilder(
-            YWH_API_URL + "/programs"
-        )
-        create_kafka_topic(KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC, KAFKA_NB_PARTITIONS)
-        message_broker_producer = KafkaMessageBrokerProducer(
-            KAFKA_BOOTSTRAP_SERVERS,
-            KAFKA_TOPIC,
-            serializer_program_reports_count
-        )
-        start_crawler(
-            programs_iterator_builder, 
-            message_broker_producer, 
-            CRAWL_INTERVAL_SECONDS
-        )
+        container.wire(modules=[crawler])
+        crawler.start(CRAWL_INTERVAL_SECONDS)
 
     elif run_type == CONSUMER_ARG:
         logging.info("Consumer started.")
-        message_broker_consumer = KafkaMessageBrokerConsumer(
-            KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC
-        )
-        program_reports_count_persist = AndProgramReportsCountPersist(
-            PostgresProgramReportsCountPersist(
-                POSTGRESQL_URL
-            ),
-            InfluxDbProgramReportsCountPersist(
-                INFLUXDB_URL,
-                INFLUXDB_USERNAME,
-                INFLUXDB_PASSWORD,
-                INFLUXDB_ORG,
-                INFLUXDB_BUCKET,
-            )
-        )
-        start_consumer(message_broker_consumer, program_reports_count_persist)
+        container.wire(modules=[consumer])
+        consumer.start()
 
 if __name__ == "__main__":
     main()

@@ -39,12 +39,18 @@ Ce projet est conçu pour surveiller le nombre de rapports hunter soumis sur les
 
 Quelques minutes peuvent être nécessaires pour que les données apparaissent sur cet écran.
 
+## Change log
+
+- 1.0.0 version initiale.
+- 1.1.0 ajout influxdb + grafana
+- 1.2.0 ajout injection de dépendances
+
 ## Tâches à faire
 
 - [x] utiliser influxdb pour stocker les données en // de postgresql.
 - [x] front end avec grafana pour parcourir les données.
 - [ ] Tests unitaires / tests d'intégration
-- [ ] Injection de dépendances. https://python-dependency-injector.ets-labs.org/
+- [x] Injection de dépendances. https://python-dependency-injector.ets-labs.org/
 
 ## Captures
 
